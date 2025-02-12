@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Item List with Pagination</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 60%;
+            margin: 50px auto;
+            text-align: center;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        li {
+            background-color: #f1f1f1;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 10px 20px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .pagination button:hover {
+            background-color: #5a6268;
+        }
+
+        .pagination button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: background-color 0.3s;
+        }
+
+        .theme-toggle:hover {
+            background-color: #218838;
+        }
+
+        /* Dark Mode */
+        body.dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        .dark-mode .container {
+            background-color: #1e1e1e;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .dark-mode li {
+            background-color: #2c2c2c;
+            color: #e0e0e0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 60%) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .pagination button {
+                width: 48%;
+            }
+        }
+    </style>
+</head>
+
+<body class="light-mode">
+    <div class="container">
+        <h1>Item List from CSV</h1>
+        <ul id="itemList"></ul>
+        <div class="pagination">
+            <button id="prevBtn" onclick="prevPage()" disabled>Previous</button>
+            <button id="nextBtn" onclick="nextPage()" disabled>Next</button>
+        </div>
+    </div>
+
+    <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+
+    <script>
+        // Array to store items from CSV
+        let items = [];
+        let currentPage = 1;
+        const itemsPerPage = 5; // Items per page
+
+        // Function to load CSV file
+        async function loadCSV() {
+            const response = await fetch('item_list.csv'); // Path to your CSV file
+            const data = await response.text();
+            items = data.split('\n').slice(1); // Split CSV into rows and remove header
+            renderList(); // Render the list after loading
+            updatePaginationButtons(); // Enable/disable pagination buttons
+        }
+
+        // Function to render the list for the current page
+        function renderList() {
+            const list = document.getElementById('itemList');
+            list.innerHTML = ''; // Clear the list
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageItems = items.slice(startIndex, endIndex);
+
+            pageItems.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.textContent = item.trim(); // Trim whitespace from CSV data
+                list.appendChild(li);
+            });
+        }
+
+        // Function to go to the previous page
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderList();
+                updatePaginationButtons();
+            }
+        }
+
+        // Function to go to the next page
+        function nextPage() {
+            const totalPages = Math.ceil(items.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderList();
+                updatePaginationButtons();
+            }
+        }
+
+        // Function to update pagination buttons
+        function updatePaginationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === Math.ceil(items.length / itemsPerPage);
+        }
+
+        // Function to toggle between dark and light mode
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains('light-mode')) {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+            } else {
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
+            }
+        }
+
+        // Load CSV file when the page loads
+        window.onload = loadCSV;
+    </script>
+</body>
+
+</html>
