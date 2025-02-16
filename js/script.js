@@ -7,7 +7,8 @@ function checkMatch() {
     const messageElement = document.getElementById('message');
 
     // Convert input to a number
-    const inputNumber = parseFloat(userInput);
+    // const inputNumber = parseFloat(userInput);
+    const inputNumber = userInput;
 
     // Check if the input is a valid number
     if (isNaN(inputNumber)) {
@@ -18,10 +19,10 @@ function checkMatch() {
 
     // Check if the input matches any item in the list
     if (dataList.includes(inputNumber)) {
-        messageElement.textContent = "The number is a match!";
+        messageElement.textContent = "Wow! You are win. The number is match!";
         messageElement.style.color = "green";
     } else {
-        messageElement.textContent = "The number is not a match.";
+        messageElement.textContent = "The number is not match.";
         messageElement.style.color = "red";
     }
 }
